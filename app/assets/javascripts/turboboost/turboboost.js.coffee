@@ -93,11 +93,14 @@ restrictResponseToBody = (html) ->
     html
 
 maybeInsertSuccessResponseBody = (resp) ->
-  return unless (header = tryJSONParse(resp.getResponseHeader('X-Turboboost-Render')))
-  html = restrictResponseToBody(resp.responseText)
-  renderOption = Object.keys(header)[0]
-  renderFunction = renderFunctionForOption(renderOption)
-  $(header[renderOption])[renderFunction](html)
+  if header = tryJSONParse(resp.getResponseHeader('X-Turboboost-Render'))
+    html = restrictResponseToBody(resp.responseText)
+    renderOption = Object.keys(header)[0]
+    renderFunction = renderFunctionForOption(renderOption)
+    $(header[renderOption])[renderFunction](html)
+  else if tryJSONParse(resp.getResponseHeader('X-Turboboosted'))
+    html = restrictResponseToBody(resp.responseText)
+    $('body').html(html)
 
 maybeReenableForms = ->
   return unless Turboboost.handleFormDisabling
